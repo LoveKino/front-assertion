@@ -1,36 +1,36 @@
 {
-  "name": "front-assertion",
-  "version": "0.0.1",
-  "description": "front assertion rules",
-  "main": "index.js",
-  "scripts": {
-    "test": "mocha test/**/*.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/LoveKino/front-assertion.git"
-  },
-  "keywords": [
-    "assertion",
-    "rules",
-    "front",
-    "web",
-    "page"
-  ],
-  "author": "ddchen",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/LoveKino/front-assertion/issues"
-  },
-  "homepage": "https://github.com/LoveKino/front-assertion#readme",
-  "link_dependencies": {
-    "jsenhance": "~0.0.1",
-    "page-text": "~0.0.1",
-    "find-dom-node": "~0.0.1",
-    "serialize-front": "~0.0.1"
-  },
-  "devDependencies": {
-    "jsdom": "^9.4.5",
-    "mocha": "^3.0.2"
-  }
+    "name": "front-assertion",
+    "version": "0.0.1",
+    "description": "front assertion rules",
+    "main": "index.js",
+    "scripts": {
+        "test": "mocha test/**/*.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/LoveKino/front-assertion.git"
+    },
+    "keywords": [
+        "assertion",
+        "rules",
+        "front",
+        "web",
+        "page"
+    ],
+    "author": "ddchen",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/LoveKino/front-assertion/issues"
+    },
+    "homepage": "https://github.com/LoveKino/front-assertion#readme",
+    "link_dependencies": {
+        "jsenhance": "~0.0.1",
+        "page-text": "~0.0.1",
+        "find-dom-node": "~0.0.1",
+        "serialize-front": "~0.0.1"
+    },
+    "devDependencies": {
+        "jsdom": "^9.4.5",
+        "mocha": "^3.0.2"
+    }
 }
