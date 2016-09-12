@@ -8,7 +8,7 @@ let {
  * keyword that page contains
  */
 
-module.exports = (keywords) => {
+module.exports = (keywords = []) => {
     let text = getDisplayText(document.body);
     for (let i = 0; i < keywords.length; i++) {
         let keyword = keywords[i];
