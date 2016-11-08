@@ -27,35 +27,36 @@
  * type: parser
  */
 let parserMap = require('./parser');
+let {
+    map
+} = require('bolzano');
 
 // beforeNextActionRun assertion
 let assertBeforeState = (beforeState, {
     log
 }) => {
-    let rets = [];
-
     let beforeNextActionRun = getBeforeNextActionRun(beforeState);
 
-    for (let i = 0; i < beforeNextActionRun.length; i++) {
+    return Promise.all(map(beforeNextActionRun, (assertion, index) => {
         let {
-            type, content, opts
-        } = beforeNextActionRun[i];
+            type, content
+        } = assertion;
         // run assertion
-        let ret = runAssertion(type, content, opts);
+        let ret = runAssertion(assertion, {
+            index,
+            type: 'beforeNextActionRun', stateId: beforeState.id
+        });
         ret = Promise.resolve(ret);
 
         // log
-        ret.then((res) => {
+        return ret.then((res) => {
             log(`[assertion pass] Assertion type is ${type}. Assertion content is ${JSON.stringify(content, null, 4)}.`);
             return res;
         }).catch(err => {
             log(`[assertion fail] Assertion type is ${type}. Assertion content is ${JSON.stringify(content, null, 4)}. Error message ${err}`);
             throw err;
         });
-
-        rets.push(ret);
-    }
-    return Promise.all(rets);
+    }));
 };
 
 let getBeforeNextActionRun = (state) => {
@@ -67,7 +68,7 @@ let getBeforeNextActionRun = (state) => {
 let assertAfterState = (afterState) => {
     let assertion = afterState.assertion || {};
     let asyncTime = assertion.asyncTime || [];
-    return assertAsyncTime(asyncTime);
+    return assertAsyncTime(asyncTime, afterState);
 };
 
 let assertLastState = (afterState, {
@@ -81,24 +82,27 @@ let assertLastState = (afterState, {
     });
 };
 
-let assertAsyncTime = (asyncTime) => {
-    let rets = [];
-    for (let i = 0; i < asyncTime.length; i++) {
+let assertAsyncTime = (asyncTime, state) => {
+    return Promise.all(map(asyncTime, (assertion, index) => {
         let {
-            time = 0, type, content, opts
-        } = asyncTime[i];
-
-        let ret = delay(time).then(() => runAssertion(type, content, opts));
-        rets.push(ret);
-    }
-    return Promise.all(rets);
+            time = 0
+        } = assertion;
+        return delay(time).then(() => runAssertion(assertion, {
+            index,
+            type: 'asyncTime', stateId: state.id
+        }));
+    }));
 };
 
-let runAssertion = (type, content, opts) => {
+let runAssertion = ({
+    type, content, opts
+}, assertionMeta) => {
     try {
         let ret = parserMap[type](content, opts);
         return Promise.resolve(ret);
     } catch (err) {
+        err.data = assertionMeta;
+        assertionMeta.errorType = 'assertionFail';
         return Promise.reject(err);
     }
 };

@@ -28,6 +28,7 @@
     "mocha": "^3.0.2"
   },
   "dependencies": {
+    "bolzano": "0.0.3",
     "find-dom-node": "0.0.1",
     "jsenhance": "0.0.1",
     "page-text": "0.0.1",

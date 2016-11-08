@@ -24,19 +24,21 @@ module.exports = (opts, {
     let appendAssertion = (assertion) => {
         assertions.push(assertion);
         // TODO throw error right away
+
+        return assertion;
     };
 
     return {
         beforeRunAction: (action) => {
             // assert before state
-            appendAssertion(assertBeforeState(action.beforeState, {
+            return appendAssertion(assertBeforeState(action.beforeState, {
                 log: opts.log
             }));
         },
 
         afterRunAction: (action) => {
             // assert after state
-            appendAssertion(assertAfterState(action.afterState, {
+            return appendAssertion(assertAfterState(action.afterState, {
                 log: opts.log
             }));
         },
