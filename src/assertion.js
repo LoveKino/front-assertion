@@ -32,29 +32,14 @@ let {
 } = require('bolzano');
 
 // beforeNextActionRun assertion
-let assertBeforeState = (beforeState, {
-    log
-}) => {
+let assertBeforeState = (beforeState) => {
     let beforeNextActionRun = getBeforeNextActionRun(beforeState);
 
     return Promise.all(map(beforeNextActionRun, (assertion, index) => {
-        let {
-            type, content
-        } = assertion;
         // run assertion
-        let ret = runAssertion(assertion, {
+        return runAssertion(assertion, {
             index,
             type: 'beforeNextActionRun', stateId: beforeState.id
-        });
-        ret = Promise.resolve(ret);
-
-        // log
-        return ret.then((res) => {
-            log(`[assertion pass] Assertion type is ${type}. Assertion content is ${JSON.stringify(content, null, 4)}.`);
-            return res;
-        }).catch(err => {
-            log(`[assertion fail] Assertion type is ${type}. Assertion content is ${JSON.stringify(content, null, 4)}. Error message ${err}`);
-            throw err;
         });
     }));
 };
@@ -94,15 +79,39 @@ let assertAsyncTime = (asyncTime, state) => {
     }));
 };
 
-let runAssertion = ({
+let runAssertion = (assertion, assertionMeta) => {
+    let opts = assertion.opts || {};
+    let wrapErr = (err) => {
+        assertionMeta.errorType = 'assertionFail';
+        err.data = assertionMeta;
+        return err;
+    };
+
+    return new Promise((resolve, reject) => {
+        return executeAssertion(assertion).then((ret) => {
+            // no exception happened
+            if (opts.negation === 'yes') { // should negation
+                reject(wrapErr(new Error(`Negation rule fail. Negation is ${opts.negation}. No exception happened when run assertion ${assertion.type} ${assertion.content}.`)));
+            } else {
+                resolve(ret);
+            }
+        }).catch(err => {
+            if (opts.negation === 'yes') {
+                resolve();
+            } else {
+                reject(wrapErr(err));
+            }
+        });
+    });
+};
+
+let executeAssertion = ({
     type, content, opts
-}, assertionMeta) => {
+}) => {
     try {
         let ret = parserMap[type](content, opts);
         return Promise.resolve(ret);
     } catch (err) {
-        err.data = assertionMeta;
-        assertionMeta.errorType = 'assertionFail';
         return Promise.reject(err);
     }
 };
