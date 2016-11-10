@@ -1,6 +1,6 @@
 {
   "name": "front-assertion",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "front assertion rules",
   "main": "index.js",
   "scripts": {
