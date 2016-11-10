@@ -32,7 +32,7 @@ let {
 } = require('bolzano');
 
 // beforeNextActionRun assertion
-let assertBeforeState = (beforeState) => {
+let assertBeforeState = (beforeState, opts) => {
     let beforeNextActionRun = getBeforeNextActionRun(beforeState);
 
     return Promise.all(map(beforeNextActionRun, (assertion, index) => {
@@ -40,7 +40,7 @@ let assertBeforeState = (beforeState) => {
         return runAssertion(assertion, {
             index,
             type: 'beforeNextActionRun', stateId: beforeState.id
-        });
+        }, opts);
     }));
 };
 
@@ -50,10 +50,10 @@ let getBeforeNextActionRun = (state) => {
     return beforeNextActionRun;
 };
 
-let assertAfterState = (afterState) => {
+let assertAfterState = (afterState, opts) => {
     let assertion = afterState.assertion || {};
     let asyncTime = assertion.asyncTime || [];
-    return assertAsyncTime(asyncTime, afterState);
+    return assertAsyncTime(asyncTime, afterState, opts);
 };
 
 let assertLastState = (afterState, {
@@ -67,7 +67,7 @@ let assertLastState = (afterState, {
     });
 };
 
-let assertAsyncTime = (asyncTime, state) => {
+let assertAsyncTime = (asyncTime, state, opts) => {
     return Promise.all(map(asyncTime, (assertion, index) => {
         let {
             time = 0
@@ -75,31 +75,39 @@ let assertAsyncTime = (asyncTime, state) => {
         return delay(time).then(() => runAssertion(assertion, {
             index,
             type: 'asyncTime', stateId: state.id
-        }));
+        }, opts));
     }));
 };
 
-let runAssertion = (assertion, assertionMeta) => {
+let runAssertion = (assertion, assertionMeta, {
+    log
+}) => {
     let opts = assertion.opts || {};
-    let wrapErr = (err) => {
-        assertionMeta.errorType = 'assertionFail';
-        err.data = assertionMeta;
-        return err;
-    };
-
     return new Promise((resolve, reject) => {
+        let wrapErr = (err) => {
+            assertionMeta.errorType = 'assertionFail';
+            err.data = assertionMeta;
+            log(`[assertion fail] type: ${assertion.type}, negation: ${opts.negation}, content: ${JSON.stringify(assertion.content)}`);
+            reject(err);
+        };
+
+        let wrapRet = (ret) => {
+            log(`[assertion pass] type: ${assertion.type}, negation: ${opts.negation}, content: ${JSON.stringify(assertion.content)}`);
+            resolve(ret);
+        };
+
         return executeAssertion(assertion).then((ret) => {
             // no exception happened
             if (opts.negation === 'yes') { // should negation
-                reject(wrapErr(new Error(`Negation rule fail. Negation is ${opts.negation}. No exception happened when run assertion ${assertion.type} ${assertion.content}.`)));
+                wrapErr(new Error(`Negation rule fail. Negation is ${opts.negation}. No exception happened when run assertion ${assertion.type} ${JSON.stringify(assertion.content)}.`));
             } else {
-                resolve(ret);
+                wrapRet(ret);
             }
         }).catch(err => {
             if (opts.negation === 'yes') {
-                resolve();
+                wrapRet();
             } else {
-                reject(wrapErr(err));
+                wrapErr(err);
             }
         });
     });

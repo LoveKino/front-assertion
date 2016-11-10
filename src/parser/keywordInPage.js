@@ -13,7 +13,7 @@ module.exports = (keywords = []) => {
     for (let i = 0; i < keywords.length; i++) {
         let keyword = keywords[i];
         if (text.indexOf(keyword) === -1) {
-            throw new Error(`missing keyword: ${keyword} in page. Page text is ${text}.`);
+            throw new Error(`missing keyword: ${keyword} in page. Page text is ${text.replace(/\r?\n/g, '\\n')}.`);
         }
     }
 };
