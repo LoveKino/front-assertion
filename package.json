@@ -1,6 +1,6 @@
 {
   "name": "front-assertion",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "front assertion rules",
   "main": "index.js",
   "scripts": {
@@ -29,9 +29,9 @@
   },
   "dependencies": {
     "bolzano": "0.0.3",
-    "find-dom-node": "0.0.1",
-    "jsenhance": "0.0.1",
+    "find-dom-node": "0.0.3",
+    "jsenhance": "0.0.2",
     "page-text": "0.0.1",
-    "serialize-front": "0.0.1"
+    "serialize-front": "0.0.2"
   }
 }
